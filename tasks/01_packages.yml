@@ -1,0 +1,10 @@
+---
+- name: Operating System Update
+  ansible.builtin.package:
+    name: "*"
+    state: latest
+
+- name: Genel paketlerinin kurulumu
+  ansible.builtin.package:
+    name: "{{ common_package }}"
+    state: present

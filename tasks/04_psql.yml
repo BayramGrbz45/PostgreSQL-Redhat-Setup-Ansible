@@ -1,0 +1,62 @@
+---
+- name: PostgreSQL modülünü devre dışı bırak
+  ansible.builtin.shell: |
+    dnf -qy module disable postgresql || yum -y module disable postgresql
+  ignore_errors: true
+
+- name: PostgreSQL paketlerini yükle
+  ansible.builtin.package:
+    name: "{{ db_packages }}"
+    state: present
+  notify:
+    - stop postgresql
+
+- name: PostgreSQL veri dizinlerinin pgsql tbs wal izinlerini ayarla
+  ansible.builtin.file:
+    path: "{{ item.mountpoint }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0770"
+  loop: "{{ db_volumes }}"
+  run_once: true
+
+- name: LV Mount Et
+  ansible.posix.mount:
+    path: "{{ item.mountpoint }}"
+    src: "/dev/vg_{{ item.name }}/lv_{{ item.name }}"
+    fstype: xfs
+    state: present
+    opts: defaults,noatime
+  loop: "{{ db_volumes }}"
+  loop_control:
+    label: "Mount: {{ item.mountpoint }} from /dev/vg_{{ item.name }}/lv_{{ item.name }}"
+  run_once: true
+
+- name: PostgreSQL initdb start
+  ansible.builtin.command:
+    cmd: "/usr/pgsql-{{ pg_version }}/bin/postgresql-{{ pg_version }}-setup initdb"
+    creates: "{{ (db_volumes | selectattr('name','equalto','pgsql') | first).mountpoint }}/{{ pg_version }}/data/PG_VERSION"
+  run_once: true
+
+- name: Mevcut WAL dosyalarını taşı (sadece dosya varsa)
+  ansible.builtin.shell:
+    cmd: |
+      find {{ (db_volumes | selectattr('name','equalto','pgsql') | first).mountpoint }}/{{ pg_version }}/data/pg_wal -maxdepth 1 -type f -exec mv {} {{ (db_volumes | selectattr('name','equalto','wal') | first).mountpoint }}/ \;
+    executable: /bin/bash
+  run_once: true
+  when: 
+    - (db_volumes | selectattr('name','equalto','pgsql') | first).mountpoint is defined
+    - (db_volumes | selectattr('name','equalto','wal') | first).mountpoint is defined
+
+- name: Sembolik link oluştur
+  ansible.builtin.file:
+    src: "{{ (db_volumes | selectattr('name','equalto','wal') | first).mountpoint }}/pg_wal"
+    dest: "{{ (db_volumes | selectattr('name','equalto','pgsql') | first).mountpoint }}/{{ pg_version }}/data/pg_wal"
+    state: link
+    force: yes
+    owner: postgres
+    group: postgres
+  run_once: true
+  notify:
+    - start postgresql

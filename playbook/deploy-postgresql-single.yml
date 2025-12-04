@@ -1,0 +1,14 @@
+---
+- name: PostgreSQL Kurulumu
+  hosts: pgsqlsrv
+  vars_files:
+    - ../vars/main.yml
+    - ../vars/packages.yml
+    - ../vars/disk.yml
+  become: true
+  become_user: root
+  gather_facts: true
+  handlers:
+    - import_tasks: ../handlers/main.yml
+  tasks:
+    - import_tasks: ../tasks/main.yml

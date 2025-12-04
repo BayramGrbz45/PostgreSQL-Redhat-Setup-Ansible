@@ -1,0 +1,16 @@
+# Managed by Ansible
+
+# NTP Sunucuları
+server time.google.com iburst
+server time.cloudflare.com iburst
+server 0.pool.ntp.org iburst
+server 1.pool.ntp.org iburst
+
+# Drift file
+driftfile /var/lib/chrony/drift
+
+# RTC uyumu
+rtcsync
+
+# Log
+logdir /var/log/chrony

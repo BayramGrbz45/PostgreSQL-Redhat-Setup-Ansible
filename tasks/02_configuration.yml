@@ -1,0 +1,46 @@
+---
+- name: Storage Edit
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: '^#?Storage='
+    line: 'Storage=persistent'
+    state: present
+    backup: true
+  notify:
+    - restart systemd-journald
+
+- name: DefaultLimitNOFILE Edit
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/system.conf
+    regexp: '^#?DefaultLimitNOFILE='
+    line: 'DefaultLimitNOFILE=524288'
+    state: present
+    backup: true
+  notify:
+    - systemd daemon reload
+
+- name: DefaultLimitNPROC Edit
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/system.conf
+    regexp: '^#?DefaultLimitNPROC='
+    line: 'DefaultLimitNPROC=524288'
+    state: present
+    backup: true
+  notify:
+    - systemd daemon reload
+
+- name: Deploy chrony.conf
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart chronyd
+
+- name: smtp relay
+  ansible.builtin.command:
+    cmd: postconf -e "relayhost={{ relay_host }}"
+  notify:
+    - restart postfix

@@ -1,0 +1,6 @@
+---
+- import_tasks: 00_common.yml
+- import_tasks: 01_packages.yml
+- import_tasks: 02_configuration.yml
+- import_tasks: 03_lvm.yml
+- import_tasks: 04_psql.yml

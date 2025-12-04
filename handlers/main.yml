@@ -1,0 +1,39 @@
+---
+- name: restart chronyd
+  ansible.builtin.service:
+    name: chronyd
+    enabled: true
+    state: restarted
+
+- name: restart systemd-journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
+
+- name: systemd daemon reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: restart postfix
+  ansible.builtin.service:
+    name: postfix
+    enabled: true
+    state: restarted
+
+- name: stop postgresql
+  ansible.builtin.service:
+    name: postgresql-{{ pg_version }}
+    enabled: false
+    state: stopped
+
+- name: start postgresql
+  ansible.builtin.service:
+    name: postgresql-{{ pg_version }}
+    enabled: false
+    state: started
+
+- name: stop firewalld
+  ansible.builtin.service:
+    name: firewalld
+    enabled: false
+    state: stopped

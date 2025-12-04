@@ -1,0 +1,15 @@
+---
+- name: Set timezone to Europe/Istanbul
+  ansible.builtin.command: timedatectl set-timezone Europe/Istanbul
+
+- name: Set SELinux running mode to permissive
+  ansible.builtin.command: setenforce 0
+  when: ansible_selinux.status == "enabled"
+
+- name: SELinux disable 
+  ansible.builtin.replace:
+    path: /etc/selinux/config
+    regexp: '^SELINUX=.*'
+    replace: 'SELINUX=disabled'
+  notify:
+    - stop firewalld

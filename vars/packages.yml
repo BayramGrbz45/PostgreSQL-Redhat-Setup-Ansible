@@ -1,0 +1,18 @@
+---
+common_package:
+  - vim
+  - postfix
+  - tcpdump
+  - net-tools
+  - telnet
+  - chrony
+  
+db_packages:
+  - "postgresql{{ pg_version }}-server"
+  - "postgresql{{ pg_version }}-contrib"
+  - "postgresql{{ pg_version }}-devel"
+  - "pg_stat_monitor_{{ pg_version }}"
+  - "postgresql{{ pg_version }}-plpython3"
+#  - "pgaudit_{{ pg_version }}"
+  - "pgauditlogtofile_{{ pg_version }}"
+  - "pgbackrest"

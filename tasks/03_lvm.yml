@@ -1,0 +1,33 @@
+---
+- name: Create Volume Groups (VG)
+  community.general.lvg:
+    vg: "vg_{{ item.name }}"
+    pvs: "{{ item.pvs }}"
+    state: present
+  loop: "{{ db_volumes }}"
+  loop_control:
+    label: "VG: vg_{{ item.name }}"
+  run_once: true
+
+- name: Create Logical Volumes (LV) with Striping
+  community.general.lvol:
+    vg: "vg_{{ item.name }}"
+    lv: "lv_{{ item.name }}"
+    size: "100%FREE"
+    opts: "-i {{ item.stripes }}"
+    state: present
+  loop: "{{ db_volumes }}"
+  loop_control:
+    label: "LV: lv_{{ item.name }} (Stripes: {{ item.stripes }})"
+  run_once: true
+  ignore_errors: true
+
+- name: Create XFS Filesystems
+  filesystem:
+    fstype: xfs
+    dev: "/dev/vg_{{ item.name }}/lv_{{ item.name }}"
+    opts: -K
+  loop: "{{ db_volumes }}"
+  loop_control:
+    label: "FS: /dev/vg_{{ item.name }}/lv_{{ item.name }}"
+  run_once: true

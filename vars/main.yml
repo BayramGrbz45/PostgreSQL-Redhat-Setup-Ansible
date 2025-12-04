@@ -1,0 +1,4 @@
+---
+pg_version: "14"
+domain: bayram.local
+relay_host: mail.bayram.local

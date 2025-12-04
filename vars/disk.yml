@@ -1,0 +1,14 @@
+---
+db_volumes:
+  - name: pgsql
+    mountpoint: /var/lib/pgsql
+    pvs: '/dev/sdb'
+    stripes: 1
+  - name: wal
+    mountpoint: /wal
+    pvs: '/dev/sdc,/dev/sdd,/dev/sde,/dev/sdf'
+    stripes: 4
+  - name: tbs
+    mountpoint: /tbs
+    pvs: '/dev/sdg,/dev/sdh,/dev/sdi,/dev/sdj'
+    stripes: 4
