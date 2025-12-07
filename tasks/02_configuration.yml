@@ -39,8 +39,9 @@
   notify:
     - restart chronyd
 
-- name: smtp relay
-  ansible.builtin.command:
-    cmd: postconf -e "relayhost={{ relay_host }}"
+- name: Configure SMTP relay
+  community.general.postconf:
+    name: relayhost
+    value: "{{ relay_host }}"
   notify:
     - restart postfix
