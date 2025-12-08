@@ -9,25 +9,17 @@
   notify:
     - restart systemd-journald
 
-- name: DefaultLimitNOFILE Edit
+- name: Configure systemd default limits
   ansible.builtin.lineinfile:
     path: /etc/systemd/system.conf
-    regexp: '^#?DefaultLimitNOFILE='
-    line: 'DefaultLimitNOFILE=524288'
+    regexp: "^#?{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
     state: present
     backup: true
-  notify:
-    - systemd daemon reload
-
-- name: DefaultLimitNPROC Edit
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/system.conf
-    regexp: '^#?DefaultLimitNPROC='
-    line: 'DefaultLimitNPROC=524288'
-    state: present
-    backup: true
-  notify:
-    - systemd daemon reload
+  loop:
+    - { key: 'DefaultLimitNOFILE', value: '524288' }
+    - { key: 'DefaultLimitNPROC', value: '524288' }
+  notify: systemd daemon reload
 
 - name: Deploy chrony.conf
   ansible.builtin.template:
@@ -45,3 +37,11 @@
     value: "{{ relay_host }}"
   notify:
     - restart postfix
+
+- name: Update /etc/hosts from inventory
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    block: |
+      {% for h in groups['all'] %}
+      {{ hostvars[h].ansible_host }} {{ h }}.{{ domain }} {{ h }}
+      {% endfor %}
