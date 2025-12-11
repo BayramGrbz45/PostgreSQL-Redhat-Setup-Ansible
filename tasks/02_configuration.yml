@@ -23,7 +23,7 @@
 
 - name: Deploy chrony.conf
   ansible.builtin.template:
-    src: chrony.conf.j2
+    src: ../template/chrony.conf.j2
     dest: /etc/chrony.conf
     owner: root
     group: root
@@ -45,3 +45,4 @@
       {% for h in groups['all'] %}
       {{ hostvars[h].ansible_host }} {{ h }}.{{ domain }} {{ h }}
       {% endfor %}
+
