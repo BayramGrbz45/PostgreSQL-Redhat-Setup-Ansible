@@ -2,3 +2,8 @@
 pg_version: "14"
 domain: bayram.local
 relay_host: mail.bayram.local
+
+ntp_servers:
+  - "10.10.10.11"
+  - "10.10.10.12"
+  - "10.10.10.13"
